@@ -11,7 +11,6 @@ import win32gui
 URL = "https://api.line.me/v2/bot/message/push"
 IMAGE_PATHS = {
     "突入": "./img/totsunyu_scale100.png",
-    "突入150": "./img/totsunyu_scale150.png",
     "commence": "./img/commence_scale100.png",
 }
 
