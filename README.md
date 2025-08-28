@@ -52,19 +52,21 @@ When a pre-configured image (such as the "Commence" button) appears, it instantl
 
 This tool uses the **LINE Messaging API**. To receive notifications, follow these steps:
 
-1.  **Create a Provider and Channel**
-      * Go to the [LINE Developers Console](https://developers.line.biz/en/) and log in.  
-      * Create a provider, then create a channel with **Messaging API** enabled under it.  
-      * Add the channel’s official LINE account as a friend on your LINE app.
+1. **Creating a LINE Official Account**
 
-2.  **Issue a Channel Access Token**
-      * In the channel’s **Messaging API settings** tab, issue a **long-lived Channel Access Token**.  
-      * Set this token in `config.ini` later.
+   * Create a LINE Official Account and add it as a friend.
+   * Click on “Use Messaging API.”
+   * Create a provider and open [LINE Developers](https://developers.line.biz/en/).
 
-3.  **Get Your User ID**
-      * In the channel’s **Messaging API settings** tab, scroll to the bottom.  
-        Your **User ID** (a string starting with `U`) is listed under **"Your user ID"**.  
-        Copy it and set it in `config.ini`.
+2. **Issuing a Channel Access Token**
+
+   * Log in to the LINE Developers Console, and open the channel from the provider you created.
+   * In the “Messaging API settings” tab of the channel, issue a **long-term channel access token**. You will later set this token in `config.ini`.
+
+3. **Get Your User ID**
+
+   * In the channel’s “Basic settings” tab, scroll down to the “Your user ID” section.
+   * The string starting with `U` shown there is your User ID. You will also set this in `config.ini`.
 
 ---
 
