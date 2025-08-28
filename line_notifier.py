@@ -1,11 +1,12 @@
+import configparser
 import time
+from datetime import datetime
+from typing import Optional
+
 import pyautogui
 import requests
 import win32con
 import win32gui
-import configparser
-from datetime import datetime
-from typing import Optional
 
 URL = "https://api.line.me/v2/bot/message/push"
 IMAGE_PATHS = {
@@ -105,7 +106,7 @@ if __name__ == "__main__":
         if TOPMOST:
             set_topmost(hwnd, flags)
         else:
-            # 正常に動かない場合、set_topmost_once(hwnd, flags)に切り替える
+            # 正常に動かない場合、set_topmost_once()に切り替える
             set_foreground_window(hwnd)
             # set_topmost_once(hwnd, flags)
 
