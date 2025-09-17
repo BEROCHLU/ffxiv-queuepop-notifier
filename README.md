@@ -4,14 +4,14 @@ This is a Windows tool that automatically detects the "Commence" button that app
 
 -----
 
-## Overview 🧭
+## 🧭 Overview
 
 This tool continuously monitors the screen of a specified game window.  
 When a pre-configured image (such as the "Commence" button) appears, it instantly sends a push notification to your designated LINE account via the LINE Messaging API.
 
 -----
 
-## Features ✨
+## ✨ Features
 
   * **Automatic Screen Image Detection**: Uses `pyautogui` and `opencv-python` to detect images on the screen with high accuracy.
   * **Push Notifications to LINE**: Instantly receive queue pop notifications in LINE.
@@ -20,14 +20,14 @@ When a pre-configured image (such as the "Commence" button) appears, it instantl
 
 -----
 
-## Requirements 📋
+## 📋 Requirements
 
   * **OS**: Windows 10/11
   * **Python**: 3.10+
 
 -----
 
-## Installation 🛠️
+## 🛠️ Installation
 
 1.  **Clone or Download the Repository**
 
@@ -46,9 +46,9 @@ When a pre-configured image (such as the "Commence" button) appears, it instantl
 
 -----
 
-## Usage ▶️
+## ▶️ Usage
 
-### 1. Preparing LINE 💬
+### 1. 💬 Preparing LINE
 
 This tool uses the **LINE Messaging API**. To receive notifications, follow these steps:
 
@@ -70,7 +70,7 @@ This tool uses the **LINE Messaging API**. To receive notifications, follow thes
 
 ---
 
-### 2. Preparing Detection Images 🖼️
+### 2. 🖼️ Preparing Detection Images
 
 Save screenshots of the images you want to detect in the `img` folder.
 
@@ -79,7 +79,7 @@ Save screenshots of the images you want to detect in the `img` folder.
 
 ---
 
-### 3. Editing the Configuration File ⚙️
+### 3. ⚙️ Editing the Configuration File
 
 Copy `config_sample.ini` to `config.ini` and edit it with a text editor according to your environment:
 
@@ -106,7 +106,7 @@ CONFIDENCE = 0.90
 
 ---
 
-### 4. Running the Script ▶️
+### 4. ▶️ Running the Script
 
 Once settings are complete, run the script:
 
@@ -121,7 +121,7 @@ If you want to stop monitoring manually, minimize the game window and press `Ctr
 
 ---
 
-### 5. Device Settings for Reliable Notifications 🔔
+### 5. 🔔 Device Settings for Reliable Notifications
 
 Check the following settings on your device to ensure you receive LINE notifications:
 
@@ -131,7 +131,7 @@ Check the following settings on your device to ensure you receive LINE notificat
 
 ---
 
-### 6. Troubleshooting 🧯
+### 6. 🧯 Troubleshooting
 
 Window Gets Stuck on Top
 
@@ -142,14 +142,14 @@ python setfree_topmost.py
 ```
 
 
-## Notes 📝
+## 📝 Notes
 
 * LINE Messaging API allows **up to 200 free messages per month**.
 * Image detection works only on the **primary monitor** in multi-monitor setups.
 
 ---
 
-## Disclaimer ⚠️
+## ⚠️ Disclaimer
 
 * This tool works on Windows only.
 * This tool does not interfere with the game’s memory or files, but use it at your own risk.
@@ -159,6 +159,6 @@ python setfree_topmost.py
 
 ---
 
-## License 📄
+## 📄 License
 
 This project is licensed under the MIT License.
