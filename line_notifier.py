@@ -1,12 +1,19 @@
 import configparser
+import ctypes
 import time
 from datetime import datetime
 from typing import Optional
 
+import cv2
+import numpy as np
 import pyautogui
 import requests
 import win32con
 import win32gui
+
+ctypes.windll.user32.SetProcessDPIAware()
+
+SCALES = [round(0.5 + 0.1 * i, 2) for i in range(11)]  # 0.5, 0.6, ..., 1.5
 
 URL = "https://api.line.me/v2/bot/message/push"
 IMAGE_PATHS = {
@@ -28,7 +35,7 @@ def post_line(message: str) -> None:
         "messages": [{"type": "text", "text": message}],
     }
 
-    r = requests.post(URL, headers=headers, json=data)
+    r = requests.post(URL, headers=headers, json=data, timeout=6)
 
     if not r.ok:
         print("LINE送信エラー:", r.status_code, r.text)
@@ -45,6 +52,37 @@ def find_image(confidence: float) -> Optional[tuple[int, int]]:
         if image_location:
             print(f"Found: {key}, x: {int(image_location.x)}, y: {int(image_location.y)}")
             return image_location
+
+    return None
+
+
+def find_image_multiscale(confidence: float) -> Optional[tuple[int, int]]:
+    """Multi-scale template matching using OpenCV (fallback for resolution/scale mismatch)."""
+    screen_gray = cv2.cvtColor(np.array(pyautogui.screenshot()), cv2.COLOR_RGB2GRAY)
+    best_score, best_key, best_scale, best_center = 0.0, None, None, None
+
+    for key, path in IMAGE_PATHS.items():
+        template = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        if template is None:
+            continue
+
+        for scale in SCALES:
+            resized = cv2.resize(template, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+            h, w = resized.shape
+            if h > screen_gray.shape[0] or w > screen_gray.shape[1]:
+                continue
+
+            result = cv2.matchTemplate(screen_gray, resized, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(result)
+
+            if max_val > best_score:
+                best_score = max_val
+                best_key, best_scale = key, scale
+                best_center = (max_loc[0] + w // 2, max_loc[1] + h // 2)
+
+    if best_score >= confidence and best_center is not None:
+        print(f"Found(MS): {best_key} scale={best_scale:.2f} conf={best_score:.3f}, x: {best_center[0]}, y: {best_center[1]}")
+        return best_center
 
     return None
 
@@ -111,7 +149,7 @@ if __name__ == "__main__":
 
         while not imageFound:
             time.sleep(INTERVAL_SEC)
-            imageFound = find_image(CONFIDENCE)
+            imageFound = find_image(CONFIDENCE) or find_image_multiscale(CONFIDENCE)
 
         post_line("Commence!⚔️")
     except KeyboardInterrupt:
