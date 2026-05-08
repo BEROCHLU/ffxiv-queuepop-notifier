@@ -110,24 +110,13 @@ def set_topmost(hwnd: int, flags: int) -> None:
     win32gui.SetForegroundWindow(hwnd)
 
 
-def enable_dpi_awareness() -> None:
-    """Windows の DPI スケーリングに正しく対応させる。"""
-    try:
-        ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PER_MONITOR_AWARE
-    except Exception:
-        try:
-            ctypes.windll.user32.SetProcessDPIAware()
-        except Exception:
-            logging.warning("DPI awareness の設定に失敗しました")
-
-
 def main() -> None:
     logging.basicConfig(
         level=logging.INFO,
         format="%(asctime)s [%(levelname)s] %(message)s",
     )
 
-    enable_dpi_awareness()
+    ctypes.windll.shcore.SetProcessDpiAwareness(2)  # PER_MONITOR_AWARE
     logging.info("起動")
 
     hwnd = 0
