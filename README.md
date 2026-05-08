@@ -101,7 +101,7 @@ TOPMOST = false
 INTERVAL_SEC = 0.5
 
 # Detection accuracy threshold (max 1.0)
-CONFIDENCE = 0.90
+CONFIDENCE = 0.8
 ```
 
 ---
