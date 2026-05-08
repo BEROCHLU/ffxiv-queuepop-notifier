@@ -39,37 +39,38 @@ def post_line(message: str, access_token: str, user_id: str) -> None:
         logging.error("LINE送信失敗: %s", e)
 
 
-def load_templates() -> dict[str, np.ndarray]:
+def load_cache() -> dict[str, np.ndarray]:
     """起動時に一度だけテンプレート画像を読み込んでキャッシュする。"""
-    templates: dict[str, np.ndarray] = {}
+    cache_image: dict[str, np.ndarray] = {}
     for key, path in IMAGE_PATHS.items():
         img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
         if img is None:
             logging.warning("テンプレート読込失敗: %s", path)
             continue
-        templates[key] = img
-    return templates
+        cache_image[key] = img
+    return cache_image
 
 
-def find_image(templates: dict[str, np.ndarray], confidence: float) -> Optional[tuple[int, int]]:
+'''
+def find_image(cache_image: dict[str, np.ndarray], confidence: float) -> Optional[tuple[int, int]]:
     """マルチスケールでテンプレートマッチングを行う。"""
     screenshot = pyautogui.screenshot()
     screen_gray = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2GRAY)
 
-    for key, template in templates.items():
+    for key, cache in cache_image.items():
         found_score: float = 0.0
         found_loc: Optional[tuple[int, int]] = None
         found_size: Optional[tuple[int, int]] = None
 
         for scale in SCALES:
-            tw = int(template.shape[1] * scale)
-            th = int(template.shape[0] * scale)
+            tw = int(cache.shape[1] * scale)
+            th = int(cache.shape[0] * scale)
             if tw < 5 or th < 5:
                 continue
             if tw > screen_gray.shape[1] or th > screen_gray.shape[0]:
                 continue
 
-            resized = cv2.resize(template, (tw, th), interpolation=cv2.INTER_AREA)
+            resized = cv2.resize(cache, (tw, th), interpolation=cv2.INTER_AREA)
             result = cv2.matchTemplate(screen_gray, resized, cv2.TM_CCOEFF_NORMED)
             _, max_score, _, max_loc = cv2.minMaxLoc(result)
 
@@ -83,6 +84,37 @@ def find_image(templates: dict[str, np.ndarray], confidence: float) -> Optional[
             cy = found_loc[1] + found_size[1] // 2
             logging.info("Found: %s, x: %d, y: %d, score: %.3f", key, cx, cy, found_score)
             return (cx, cy)
+
+    return None
+'''
+
+
+def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float) -> Optional[tuple[int, int]]:
+    """Multi-scale template matching using OpenCV (fallback for resolution/scale mismatch)."""
+    screenshot = pyautogui.screenshot()
+    screen_gray = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2GRAY)
+    best_score, best_key, best_scale, best_center = 0.0, None, None, None
+
+    for key, cache in cache_image.items():
+        for scale in SCALES:
+            resized = cv2.resize(cache, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
+            h, w = resized.shape
+            if h > screen_gray.shape[0] or w > screen_gray.shape[1]:
+                continue
+
+            result = cv2.matchTemplate(screen_gray, resized, cv2.TM_CCOEFF_NORMED)
+            _, max_val, _, max_loc = cv2.minMaxLoc(result)
+
+            if max_val > best_score:
+                best_score = max_val
+                best_key, best_scale = key, scale
+                best_center = (max_loc[0] + w // 2, max_loc[1] + h // 2)
+
+    if best_score >= confidence and best_center is not None:
+        print(
+            f"Found(MS): {best_key} scale={best_scale:.2f} conf={best_score:.2f}, x: {best_center[0]}, y: {best_center[1]}"
+        )
+        return best_center
 
     return None
 
@@ -134,8 +166,8 @@ def main() -> None:
         interval_sec = cfg.getfloat("LINE", "INTERVAL_SEC")
         confidence = cfg.getfloat("LINE", "CONFIDENCE")
 
-        templates = load_templates()
-        if not templates:
+        cache_image = load_cache()
+        if not cache_image:
             raise RuntimeError("有効なテンプレート画像がありません")
 
         hwnd = win32gui.FindWindow(None, window_title)
@@ -150,7 +182,7 @@ def main() -> None:
 
         while True:
             time.sleep(interval_sec)
-            if find_image(templates, confidence):
+            if find_image_multiscale(cache_image, confidence):
                 break
 
         post_line("Commence!⚔️", access_token, user_id)
