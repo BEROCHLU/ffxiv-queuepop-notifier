@@ -16,8 +16,8 @@ IMAGE_PATHS = {
     "突入": "./img/totsunyu_scale100.png",
     "commence": "./img/commence_scale100.png",
 }
-# マルチスケール候補 (0.50, 0.55, ..., 2.00)
-SCALES = [round(0.5 + 0.05 * i, 2) for i in range(31)]
+# マルチスケール候補 (0.5, 0.6, ..., 1.5)
+SCALES = [round(0.5 + 0.1 * i, 2) for i in range(11)]
 REQUEST_TIMEOUT = 10
 
 
@@ -51,17 +51,15 @@ def load_templates() -> dict[str, np.ndarray]:
     return templates
 
 
-def find_image(
-    templates: dict[str, np.ndarray], confidence: float
-) -> Optional[tuple[int, int]]:
+def find_image(templates: dict[str, np.ndarray], confidence: float) -> Optional[tuple[int, int]]:
     """マルチスケールでテンプレートマッチングを行う。"""
     screenshot = pyautogui.screenshot()
     screen_gray = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2GRAY)
 
     for key, template in templates.items():
-        best_val: float = 0.0
-        best_loc: Optional[tuple[int, int]] = None
-        best_size: Optional[tuple[int, int]] = None
+        found_score: float = 0.0
+        found_loc: Optional[tuple[int, int]] = None
+        found_size: Optional[tuple[int, int]] = None
 
         for scale in SCALES:
             tw = int(template.shape[1] * scale)
@@ -73,17 +71,17 @@ def find_image(
 
             resized = cv2.resize(template, (tw, th), interpolation=cv2.INTER_AREA)
             result = cv2.matchTemplate(screen_gray, resized, cv2.TM_CCOEFF_NORMED)
-            _, max_val, _, max_loc = cv2.minMaxLoc(result)
+            _, max_score, _, max_loc = cv2.minMaxLoc(result)
 
-            if max_val > best_val:
-                best_val = max_val
-                best_loc = max_loc
-                best_size = (tw, th)
+            if max_score > found_score:
+                found_score = max_score
+                found_loc = max_loc  # type: ignore
+                found_size = (tw, th)
 
-        if best_loc and best_size and best_val >= confidence:
-            cx = best_loc[0] + best_size[0] // 2
-            cy = best_loc[1] + best_size[1] // 2
-            logging.info("Found: %s, x: %d, y: %d, score: %.3f", key, cx, cy, best_val)
+        if found_loc and found_size and found_score >= confidence:
+            cx = found_loc[0] + found_size[0] // 2
+            cy = found_loc[1] + found_size[1] // 2
+            logging.info("Found: %s, x: %d, y: %d, score: %.3f", key, cx, cy, found_score)
             return (cx, cy)
 
     return None
