@@ -43,7 +43,7 @@ def load_cache() -> dict[str, np.ndarray]:
     """起動時に一度だけテンプレート画像を読み込んでキャッシュする。"""
     cache_image: dict[str, np.ndarray] = {}
     for key, path in IMAGE_PATHS.items():
-        img = cv2.imread(path, cv2.IMREAD_GRAYSCALE)
+        img = cv2.imread(path, cv2.IMREAD_COLOR)
         if img is None:
             logging.warning("テンプレート読込失敗: %s", path)
             continue
@@ -54,16 +54,16 @@ def load_cache() -> dict[str, np.ndarray]:
 def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float) -> bool:
     """Multi-scale template matching using OpenCV (fallback for resolution/scale mismatch)."""
     screenshot = pyautogui.screenshot()
-    screen_gray = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2GRAY)
+    screen_bgr = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
 
     for key, cache in cache_image.items():
         for scale in SCALES:
             resized = cv2.resize(cache, None, fx=scale, fy=scale, interpolation=cv2.INTER_AREA)
-            h, w = resized.shape
-            if h > screen_gray.shape[0] or w > screen_gray.shape[1]:
+            h, w = resized.shape[:2]  # (h, w, 3) の先頭2つだけ取る
+            if h > screen_bgr.shape[0] or w > screen_bgr.shape[1]:
                 continue
 
-            result = cv2.matchTemplate(screen_gray, resized, cv2.TM_CCOEFF_NORMED)
+            result = cv2.matchTemplate(screen_bgr, resized, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(result)
 
             if max_val >= confidence:
