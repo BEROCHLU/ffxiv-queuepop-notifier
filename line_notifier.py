@@ -51,11 +51,10 @@ def load_cache() -> dict[str, np.ndarray]:
     return cache_image
 
 
-def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float) -> Optional[tuple[int, int]]:
+def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float) -> bool:
     """Multi-scale template matching using OpenCV (fallback for resolution/scale mismatch)."""
     screenshot = pyautogui.screenshot()
     screen_gray = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2GRAY)
-    best_score, best_key, best_scale, best_center = 0.0, None, None, None
 
     for key, cache in cache_image.items():
         for scale in SCALES:
@@ -67,18 +66,14 @@ def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float)
             result = cv2.matchTemplate(screen_gray, resized, cv2.TM_CCOEFF_NORMED)
             _, max_val, _, max_loc = cv2.minMaxLoc(result)
 
-            if max_val > best_score:
-                best_score = max_val
-                best_key, best_scale = key, scale
-                best_center = (max_loc[0] + w // 2, max_loc[1] + h // 2)
+            if max_val >= confidence:
+                center_loc = (max_loc[0] + w // 2, max_loc[1] + h // 2)
+                logging.info(
+                    f"Found: {key} scale: {scale:.2f} score: {max_val:.2f}  x: {center_loc[0]}, y: {center_loc[1]}"
+                )
+                return True
 
-    if best_score >= confidence and best_center is not None:
-        print(
-            f"Found: {best_key} scale: {best_scale:.2f} score: {best_score:.2f}, x: {best_center[0]}, y: {best_center[1]}"
-        )
-        return best_center
-
-    return None
+    return False
 
 
 def set_foreground_window(hwnd: int) -> None:
