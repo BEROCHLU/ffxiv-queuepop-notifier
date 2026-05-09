@@ -16,8 +16,8 @@ IMAGE_PATHS = {
     "突入": "./img/totsunyu_scale100.png",
     "commence": "./img/commence_scale100.png",
 }
-# マルチスケール候補 (0.5, 0.6, ..., 1.5)
-SCALES = [round(0.5 + 0.1 * i, 2) for i in range(11)]
+# マルチスケール候補 (0.6, 0.7, ..., 1.4)
+SCALES = [round(0.6 + 0.1 * i, 2) for i in range(9)]
 REQUEST_TIMEOUT = 10
 
 
