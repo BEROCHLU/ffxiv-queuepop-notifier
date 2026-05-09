@@ -51,44 +51,6 @@ def load_cache() -> dict[str, np.ndarray]:
     return cache_image
 
 
-'''
-def find_image(cache_image: dict[str, np.ndarray], confidence: float) -> Optional[tuple[int, int]]:
-    """マルチスケールでテンプレートマッチングを行う。"""
-    screenshot = pyautogui.screenshot()
-    screen_gray = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2GRAY)
-
-    for key, cache in cache_image.items():
-        found_score: float = 0.0
-        found_loc: Optional[tuple[int, int]] = None
-        found_size: Optional[tuple[int, int]] = None
-
-        for scale in SCALES:
-            tw = int(cache.shape[1] * scale)
-            th = int(cache.shape[0] * scale)
-            if tw < 5 or th < 5:
-                continue
-            if tw > screen_gray.shape[1] or th > screen_gray.shape[0]:
-                continue
-
-            resized = cv2.resize(cache, (tw, th), interpolation=cv2.INTER_AREA)
-            result = cv2.matchTemplate(screen_gray, resized, cv2.TM_CCOEFF_NORMED)
-            _, max_score, _, max_loc = cv2.minMaxLoc(result)
-
-            if max_score > found_score:
-                found_score = max_score
-                found_loc = max_loc  # type: ignore
-                found_size = (tw, th)
-
-        if found_loc and found_size and found_score >= confidence:
-            cx = found_loc[0] + found_size[0] // 2
-            cy = found_loc[1] + found_size[1] // 2
-            logging.info("Found: %s, x: %d, y: %d, score: %.3f", key, cx, cy, found_score)
-            return (cx, cy)
-
-    return None
-'''
-
-
 def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float) -> Optional[tuple[int, int]]:
     """Multi-scale template matching using OpenCV (fallback for resolution/scale mismatch)."""
     screenshot = pyautogui.screenshot()
@@ -112,7 +74,7 @@ def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float)
 
     if best_score >= confidence and best_center is not None:
         print(
-            f"Found(MS): {best_key} scale={best_scale:.2f} conf={best_score:.2f}, x: {best_center[0]}, y: {best_center[1]}"
+            f"Found: {best_key} scale: {best_scale:.2f} score: {best_score:.2f}, x: {best_center[0]}, y: {best_center[1]}"
         )
         return best_center
 
