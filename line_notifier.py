@@ -2,7 +2,6 @@ import configparser
 import ctypes
 import logging
 import time
-from typing import Optional
 
 import cv2
 import numpy as np
@@ -13,8 +12,8 @@ import win32gui
 
 URL = "https://api.line.me/v2/bot/message/push"
 IMAGE_PATHS = {
-    "突入": "./img/totsunyu_scale100.png",
-    "commence": "./img/commence_scale100.png",
+    "辞退": "./image/jitai_scale100.png",
+    "Wait": "./image/wait_scale120.png",
 }
 # マルチスケール候補 (0.6, 0.7, ..., 1.4)
 SCALES = [round(0.6 + 0.1 * i, 2) for i in range(9)]
@@ -52,7 +51,7 @@ def load_cache() -> dict[str, np.ndarray]:
 
 
 def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float) -> bool:
-    """Multi-scale template matching using OpenCV (fallback for resolution/scale mismatch)."""
+    """OpenCV を用いたマルチスケール・テンプレートマッチング（解像度やスケールの違いを吸収）。"""
     screenshot = pyautogui.screenshot()
     screen_bgr = cv2.cvtColor(np.array(screenshot), cv2.COLOR_RGB2BGR)
 
