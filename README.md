@@ -14,7 +14,7 @@ When a pre-configured image (the "Wait" button that appears on queue pop) is det
 ## ✨ Features
 
   * **Automatic Screen Image Detection**: Uses `pyautogui` and `opencv-python` to detect images on the screen with high accuracy.
-  * **Multi-scale Template Matching**: Absorbs differences in monitor scaling and resolution by searching at scales from 0.6× to 1.4×.
+  * **Multi-scale Template Matching**: Absorbs differences in resolution and scaling by scanning at multiple scales.
   * **Push Notifications to LINE**: Instantly receive queue pop notifications in LINE.
   * **Auto Focus on Startup**: Brings the target game window to the foreground and gives it focus when the script starts.
   * **Easy Configuration**: Just edit the `config.ini` file to change your access token, target window, and other settings.
@@ -75,7 +75,7 @@ This tool uses the **LINE Messaging API**. To receive notifications, follow thes
 
 Save screenshots of the images you want to detect in the `image` folder.
 
-  * By default, `jitai_scale100.png` (the "辞退 / Decline" button) and `wait_scale120.png` (the "Wait" button) are configured.
+  * By default, `jitai_scale100.png` (the "辞退 / Wait" button) and `wait_scale120.png` (the "Wait" button) are configured.
   * The script performs multi-scale matching (0.6×–1.4×), so minor differences in monitor scaling are absorbed automatically. If detection still fails, capture a clearer screenshot and edit the `IMAGE_PATHS` dictionary in `line_notifier.py`.
 
 ---
