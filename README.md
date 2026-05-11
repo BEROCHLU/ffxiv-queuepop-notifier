@@ -1,21 +1,22 @@
 # FFXIV Queue Pop LINE Notifier
 
-This is a Windows tool that automatically detects the "Commence" button that appears when a Duty Finder queue pops in FINAL FANTASY XIV, and sends a notification to LINE. With this, you won’t miss your queue even when you step away from the screen.
+This is a Windows tool that automatically detects the "Wait" buttons that appear when a Duty Finder queue pops in FINAL FANTASY XIV, and sends a notification to LINE. With this, you won’t miss your queue even when you step away from the screen.
 
 -----
 
 ## 🧭 Overview
 
 This tool continuously monitors the screen of a specified game window.  
-When a pre-configured image (such as the "Commence" button) appears, it instantly sends a push notification to your designated LINE account via the LINE Messaging API.
+When a pre-configured image (the "Wait" button that appears on queue pop) is detected, it instantly sends a push notification to your designated LINE account via the LINE Messaging API.
 
 -----
 
 ## ✨ Features
 
   * **Automatic Screen Image Detection**: Uses `pyautogui` and `opencv-python` to detect images on the screen with high accuracy.
+  * **Multi-scale Template Matching**: Absorbs differences in monitor scaling and resolution by searching at scales from 0.6× to 1.4×.
   * **Push Notifications to LINE**: Instantly receive queue pop notifications in LINE.
-  * **Always-on-Top Window**: Optionally keep the game window always on top.
+  * **Auto Focus on Startup**: Brings the target game window to the foreground and gives it focus when the script starts.
   * **Easy Configuration**: Just edit the `config.ini` file to change your access token, target window, and other settings.
 
 -----
@@ -72,10 +73,10 @@ This tool uses the **LINE Messaging API**. To receive notifications, follow thes
 
 ### 2. 🖼️ Preparing Detection Images
 
-Save screenshots of the images you want to detect in the `img` folder.
+Save screenshots of the images you want to detect in the `image` folder.
 
-  * By default, `totsunyu_scale100.png` and `commence_scale100.png` are configured.  
-  * Depending on your monitor scaling, prepare a clear screenshot of the "Commence" button and edit the `IMAGE_PATHS` dictionary in `line_notifier.py`.
+  * By default, `jitai_scale100.png` (the "辞退 / Decline" button) and `wait_scale120.png` (the "Wait" button) are configured.
+  * The script performs multi-scale matching (0.6×–1.4×), so minor differences in monitor scaling are absorbed automatically. If detection still fails, capture a clearer screenshot and edit the `IMAGE_PATHS` dictionary in `line_notifier.py`.
 
 ---
 
@@ -93,9 +94,6 @@ USER_ID = YOUR_USER_ID
 
 # Title of the window to monitor
 WINDOW_TITLE = FINAL FANTASY XIV
-
-# Keep the window always on top (true/false)
-TOPMOST = false
 
 # Interval (seconds) between detection attempts
 INTERVAL_SEC = 0.5
@@ -130,17 +128,6 @@ Check the following settings on your device to ensure you receive LINE notificat
 * Exclude LINE from battery saver restrictions.
 
 ---
-
-### 6. 🧯 Troubleshooting
-
-Window Gets Stuck on Top
-
-If the script terminates unexpectedly while `TOPMOST = true` is set in your `config.ini`, the game window might get stuck in an "always-on-top" state. If this happens, you can resolve it by running the included `setfree_topmost.py` script:
-
-```bash
-python setfree_topmost.py
-```
-
 
 ## 📝 Notes
 

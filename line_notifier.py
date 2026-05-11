@@ -75,26 +75,11 @@ def find_image_multiscale(cache_image: dict[str, np.ndarray], confidence: float)
     return False
 
 
-def set_foreground_window(hwnd: int) -> None:
-    """指定したウィンドウを前面にする。"""
-    win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-    # SetForegroundWindow の実行前に無害なキー入力を送るとエラーを避けやすい
-    pyautogui.press("altleft")
-    win32gui.SetForegroundWindow(hwnd)
-
-
-def set_topmost_once(hwnd: int, flags: int) -> None:
+def focus_via_topmost(hwnd: int, flags: int) -> None:
     """最前面化を一度だけ強制してから解除しフォーカス。"""
     win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
     win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, flags)
     win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST, 0, 0, 0, 0, flags)
-    win32gui.SetForegroundWindow(hwnd)
-
-
-def set_topmost(hwnd: int, flags: int) -> None:
-    """ウィンドウを最前面に固定してフォーカス。"""
-    win32gui.ShowWindow(hwnd, win32con.SW_RESTORE)
-    win32gui.SetWindowPos(hwnd, win32con.HWND_TOPMOST, 0, 0, 0, 0, flags)
     win32gui.SetForegroundWindow(hwnd)
 
 
@@ -109,7 +94,6 @@ def main() -> None:
 
     hwnd = 0
     flags = win32con.SWP_NOMOVE | win32con.SWP_NOSIZE
-    topmost = False
 
     try:
         cfg = configparser.ConfigParser()
@@ -118,7 +102,6 @@ def main() -> None:
         access_token = cfg.get("LINE", "ACCESS_TOKEN")
         user_id = cfg.get("LINE", "USER_ID")
         window_title = cfg.get("LINE", "WINDOW_TITLE")
-        topmost = cfg.getboolean("LINE", "TOPMOST")
         interval_sec = cfg.getfloat("LINE", "INTERVAL_SEC")
         confidence = cfg.getfloat("LINE", "CONFIDENCE")
 
@@ -130,11 +113,7 @@ def main() -> None:
         if not hwnd:
             raise RuntimeError(f"ウィンドウが見つかりません: {window_title}")
 
-        if topmost:
-            set_topmost(hwnd, flags)
-        else:
-            # 正常に動かない場合は set_topmost_once(hwnd, flags) に切り替え
-            set_foreground_window(hwnd)
+        focus_via_topmost(hwnd, flags)
 
         while True:
             time.sleep(interval_sec)
@@ -148,8 +127,6 @@ def main() -> None:
     except Exception as e:
         logging.exception("エラー発生: %s", e)
     finally:
-        if topmost and hwnd:
-            win32gui.SetWindowPos(hwnd, win32con.HWND_NOTOPMOST, 0, 0, 0, 0, flags)
         logging.info("終了")
 
 
