@@ -112,7 +112,7 @@ python line_notifier.py
 ```
 
 The script will start monitoring the screen.
-When the specified image is detected, a LINE notification will be sent and the script will automatically terminate.
+When the specified image is detected, the script will attempt to send a LINE notification, log any send error, and then automatically terminate.
 
 If you want to stop monitoring manually, press `Ctrl + C` in the console where the script is running.
 
