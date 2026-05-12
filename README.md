@@ -1,13 +1,12 @@
 # FFXIV Queue Pop LINE Notifier
 
-This is a Windows tool that automatically detects the "Wait" buttons that appear when a Duty Finder queue pops in FINAL FANTASY XIV, and sends a notification to LINE. With this, you won’t miss your queue even when you step away from the screen.
+This is a Windows tool that automatically detects configured Duty Finder UI images, such as the "Wait" and "辞退" buttons that appear when a queue pops in FINAL FANTASY XIV, and sends a notification to LINE. With this, you won’t miss your queue even when you step away from the screen.
 
 -----
 
 ## 🧭 Overview
 
-This tool continuously monitors the screen of a specified game window.  
-When a pre-configured image (the "Wait" button that appears on queue pop) is detected, it instantly sends a push notification to your designated LINE account via the LINE Messaging API.
+This tool brings the specified game window to the foreground, then continuously scans the entire primary monitor. When a pre-configured image is detected, it attempts to send a push notification to your designated LINE account via the LINE Messaging API.
 
 -----
 
@@ -75,7 +74,7 @@ This tool uses the **LINE Messaging API**. To receive notifications, follow thes
 
 Save screenshots of the images you want to detect in the `image` folder.
 
-  * By default, `jitai_scale100.png` (the "辞退 / Wait" button) and `wait_scale120.png` (the "Wait" button) are configured.
+  * By default, `jitai_scale100.png` (the "辞退" button) and `wait_scale120.png` (the "Wait" button) are configured.
   * The script performs multi-scale matching (0.6×–1.4×), so minor differences in monitor scaling are absorbed automatically. If detection still fails, capture a clearer screenshot and edit the `IMAGE_PATHS` dictionary in `line_notifier.py`.
 
 ---
@@ -115,7 +114,7 @@ python line_notifier.py
 The script will start monitoring the screen.
 When the specified image is detected, a LINE notification will be sent and the script will automatically terminate.
 
-If you want to stop monitoring manually, minimize the game window and press `Ctrl + C` in the console where the script is running.
+If you want to stop monitoring manually, press `Ctrl + C` in the console where the script is running.
 
 ---
 
